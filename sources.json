@@ -1,0 +1,164 @@
+{
+  "https://docs.zaloplatforms.com/docs/MA/devtools/app-config": {
+    "content_hash": "0e67cbb323ca7b5d64203c254391e7cefa2e1bf478925463576fa0a09eeb555e",
+    "text_length": 4340,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/checkout-sdk": {
+    "content_hash": "826c6c58ff7572481620685e8d51a5cbeb8122eff9daccb50199e8bd4e634115",
+    "text_length": 3862,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/checkout-sdk/": {
+    "content_hash": "826c6c58ff7572481620685e8d51a5cbeb8122eff9daccb50199e8bd4e634115",
+    "text_length": 3862,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/authen-user/": {
+    "content_hash": "a3122a7bf34d162118f82bc25bf41af601ec1af7d85c9adf13e8f6b5764e3a66",
+    "text_length": 3771,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/entry-point-access/": {
+    "content_hash": "248291700eaae13fff6516a83fbe35a3bf8db059925ede4913b8ed15956a3676",
+    "text_length": 2775,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/frequently-solved-issues/": {
+    "content_hash": "e944b0ae5da42ed09f53284d36b0ba7cc9daacaf069cdbd69a4543336bd4b683",
+    "text_length": 20384,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/getting-started/": {
+    "content_hash": "515805c19909d8de6b8b116b9550f59f2a61b27f5fe425a667b18ce2209f421b",
+    "text_length": 3265,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/mini-app-account/": {
+    "content_hash": "e30a3bef7daf50eb6a308b64dc554b717c6463dca7080b5e4e597283f56612f1",
+    "text_length": 743,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/mini-app-navigation-mechanisms/": {
+    "content_hash": "1cc6f9fd1ca099ea4f4418367efc51ad183c38c66e4f23f755808354a0230b04",
+    "text_length": 1440,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/public-mini-app/": {
+    "content_hash": "ca595560717f75557c02a0460f92dc67fdf60d54ac6e59906345ca88efa165ad",
+    "text_length": 2809,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/request-permission/": {
+    "content_hash": "3c3589942c366097ffae80b3ce82bc1df8fb91913cfed25f37a8eafca7e38ab5",
+    "text_length": 6235,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/testing-on-zalo/": {
+    "content_hash": "cb74423f33395a7cafe80396c689d53286d46818a367097bf579cf2315c809d5",
+    "text_length": 1238,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/what-is-miniapp/": {
+    "content_hash": "8b755ae3a51f7df6f3ec452526ed6a22011af5b38071f69ea5adf07dd113f447",
+    "text_length": 3659,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/intro/zalo-mini-app-design-guidelines/": {
+    "content_hash": "96d91c45d3b1ae71fff1851684e8d61f5ab164075341da0ac2a65f8c6d24f857",
+    "text_length": 10408,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/open-apis/partner/app-permission/": {
+    "content_hash": "9d7dbc223986ab58fd1b5aafb6dac15c7d7c32f6ac81a21ad5143b7779619d36",
+    "text_length": 3429,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/open-apis/partner/event-review-mini-app/": {
+    "content_hash": "22b1efc14f23618650ebb3d9b5eb778c55cbed49caddda47aee9a1a0f16f9df1",
+    "text_length": 868,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/open-apis/partner/publish-mini-app/": {
+    "content_hash": "39348e9a45e89b3a931ca09b9b9bf4e84fe10ba6ff461fccef1dee741528348a",
+    "text_length": 855,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/open-apis/partner/request-publish-mini-app/": {
+    "content_hash": "ddc1551aad292785930e51f093c0c47b9eb77e76e05296d0044f71b154421f5e",
+    "text_length": 1184,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/solution-partner/policy/": {
+    "content_hash": "9f6fbdeeb75212e17f27a2bc1e5029fbcebf34a1df92e8b9ffa0db55873d333e",
+    "text_length": 10273,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/tutorial/update-information-about-compliance-with-decree/": {
+    "content_hash": "00e6c7fe3777fb58efeaf47c877d53f4d996b7379bd6c9ccffaa5b73dc4b154a",
+    "text_length": 771,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/tutorial/update-information-about-compliance-with-decree/granting-permission-consent/": {
+    "content_hash": "fc35b4485e69a9816e28c2434ea8d7975e662a2f369d07d4ac979d84efd0cf62",
+    "text_length": 1172,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/tutorial/update-information-about-compliance-with-decree/revoke-and-remove-user-data/": {
+    "content_hash": "81f3d0eb85263235f65d5dc15677a906809eab4d1ad1e3c815ed2fe3f00d68a5",
+    "text_length": 1148,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/zalo-mini-app-censorship-policy/": {
+    "content_hash": "b2d5f61d5cd1d58dcb16eae98f645a2d19c657e2d65a9eccaf11e7a6569a1758",
+    "text_length": 14888,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/zalo-mini-app-developer-program-agreement/": {
+    "content_hash": "db1e4ebdee8ae3f2133fc2897b96a4e5bdf9f57647985c0df6f26cccca1a7552",
+    "text_length": 90701,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/zalo-mini-app-developer-program-agreement/mini-app-verification/": {
+    "content_hash": "0717eca449642f3fdcdc3e67f7a17727c26b04371a22accf1e34348e7917a713",
+    "text_length": 14754,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://mini.zalo.me/documents/zalo-mini-app-developer-program-agreement/regulated-products-and-services/": {
+    "content_hash": "c13d78cf166c2c968d3bb7b59525b0a33e9fcce6085153d0506073fd89e9d1b5",
+    "text_length": 13677,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  },
+  "https://miniapp.zaloplatforms.com/community": {
+    "content_hash": "43fdb3ec7994f8d1fc26af7ad2a2fbd076b8a891ab776aab808909d5fbacd4b4",
+    "text_length": 39,
+    "http_status": 200,
+    "last_checked": "2026-09-03"
+  }
+}
