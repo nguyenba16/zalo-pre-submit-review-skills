@@ -17,6 +17,7 @@ AI-agent skill (Claude/omp managed skill format) + checklist tài liệu để c
 | [`check_updates.py`](./check_updates.py) | Script kiểm tra staleness: fetch lại 27 URL nguồn, so hash với baseline, báo cáo trang nào đã đổi. |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Lịch sử thay đổi nội dung checklist. |
 | [`requirements.txt`](./requirements.txt) | Dependency cho `check_updates.py`. |
+| [`sync.sh`](./sync.sh) | Script team dùng để kéo bản mới nhất từ GitHub về `~/.omp/agent/managed-skills/zalo-pre-submit-review/` local — chạy lại được nhiều lần, tự báo nếu đã ở bản mới nhất. |
 
 ## 6 nhóm checklist
 
@@ -32,7 +33,17 @@ AI-agent skill (Claude/omp managed skill format) + checklist tài liệu để c
 ## Cách dùng
 
 ### Với AI agent hỗ trợ managed skills (Claude Code / omp / ckit)
-Copy `SKILL.md` + các file đi kèm vào thư mục managed-skills của agent (vd `~/.omp/agent/managed-skills/zalo-pre-submit-review/`), agent sẽ tự nạp và biết cách dùng khi làm việc trên dự án Zalo Mini App.
+Cài lần đầu — copy `SKILL.md` + các file đi kèm vào thư mục managed-skills của agent (vd `~/.omp/agent/managed-skills/zalo-pre-submit-review/`), agent sẽ tự nạp và biết cách dùng khi làm việc trên dự án Zalo Mini App.
+
+### Cập nhật khi repo có thay đổi (mỗi thành viên team tự chạy trên máy mình)
+Repo GitHub là nguồn duy nhất (single source of truth); bản trong `~/.omp/agent/managed-skills/` chỉ là bản copy cục bộ, KHÔNG tự đồng bộ. Sau khi có PR merge vào `main`, mỗi người trong team chạy:
+```bash
+curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
+# hoặc nếu đã clone repo sẵn: bash sync.sh
+```
+Script tự clone/pull `main` vào `~/.cache/zalo-pre-submit-review-skills` (cache riêng, tách khỏi checkout dev), rồi copy đúng 6 file runtime (`SKILL.md`, `checklist.md`, `checklist.docx`, `sources.json`, `check_updates.py`, `requirements.txt`, `CHANGELOG.md`) đè lên `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Nếu đã ở bản mới nhất, script báo và không làm gì thêm (an toàn chạy lại). Muốn tự động hoá thêm (cron/Task Scheduler chạy `sync.sh` hàng tuần) là tuỳ chọn của từng người, script không tự lên lịch.
+
+Đây là cơ chế đồng bộ **nội dung checklist trong repo này** (khi ai đó sửa/merge PR). Khác với `check_updates.py` — cái đó phát hiện khi **Zalo đổi tài liệu gốc** (nguồn bên ngoài repo), không liên quan đến việc đồng bộ máy-máy trong team.
 
 ### Kiểm tra checklist còn khớp tài liệu Zalo không
 ```bash
