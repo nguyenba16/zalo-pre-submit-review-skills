@@ -30,29 +30,45 @@ AI-agent skill (Claude/omp managed skill format) + checklist tài liệu để c
 
 92 mục agent tự kiểm 100% được (`yes`), 75 mục agent chỉ cảnh báo (`partial`), 50 mục thuần thủ công/pháp lý (`no`) — xem bảng thống kê đầu `checklist.md`.
 
-## Cách dùng
+## Hướng dẫn sử dụng (HDSD)
 
-### Với AI agent hỗ trợ managed skills (Claude Code / omp / ckit)
-Cài lần đầu — copy `SKILL.md` + các file đi kèm vào thư mục managed-skills của agent (vd `~/.omp/agent/managed-skills/zalo-pre-submit-review/`), agent sẽ tự nạp và biết cách dùng khi làm việc trên dự án Zalo Mini App.
+### Yêu cầu môi trường
+- Git + Bash để chạy `sync.sh`. Trên **Windows dùng Git Bash** (đi kèm Git for Windows) — không chạy `sync.sh` bằng CMD/PowerShell thuần.
+- Python 3 (chỉ cần nếu muốn tự chạy `check_updates.py`).
+- Một AI agent hỗ trợ managed skills (Claude Code / omp / ckit) — skill này không phải app chạy độc lập, nó là tài liệu + checklist để agent đọc và tự thực hiện review khi làm việc trên dự án Zalo Mini App.
 
-### Cập nhật khi repo có thay đổi (mỗi thành viên team tự chạy trên máy mình)
-Repo GitHub là nguồn duy nhất (single source of truth); bản trong `~/.omp/agent/managed-skills/` chỉ là bản copy cục bộ, KHÔNG tự đồng bộ. Sau khi có PR merge vào `main`, mỗi người trong team chạy:
+### Bước 1 — Cài lần đầu
+Chạy trong Git Bash (Windows) hoặc terminal (Mac/Linux):
+```bash
+curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
+```
+Lệnh này tự clone repo về cache (`~/.cache/zalo-pre-submit-review-skills`) và copy 6 file runtime vào `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Sau bước này agent sẽ tự nhận diện skill ở phiên làm việc tiếp theo — không cần cấu hình thêm.
+
+### Bước 2 — Chạy pre-submit review trên một dự án Mini App
+Mở agent (Claude Code/omp/ckit) tại thư mục dự án Zalo Mini App, yêu cầu kiểu: *"chạy pre-submit review theo skill zalo-pre-submit-review trước khi nộp duyệt"*. Agent sẽ tự đọc `SKILL.md` để biết quy trình (đọc checklist 1 lần → tóm tắt cấu trúc dự án → dispatch song song các nhóm A/C/D/E tự kiểm được → tổng hợp báo cáo PASS/FAIL/WARN kèm bằng chứng `file:line`). Nhóm B/F (pháp lý) không tự kiểm bằng code — agent liệt kê thành checklist thủ công cho người phụ trách, không tự kết luận đạt/không đạt.
+
+**Đọc kỹ trước khi trình bày kết quả với khách hàng**: mục "Trạng thái" (đầu file này) và "Giới hạn quan trọng" (cuối file này) — đây là bản nháp, chưa qua review pháp lý cho Nhóm B.
+
+### Bước 3 — Cập nhật khi repo có thay đổi (mỗi thành viên team tự chạy trên máy mình)
+Repo GitHub là nguồn duy nhất (single source of truth); bản trong `~/.omp/agent/managed-skills/` chỉ là bản copy cục bộ, KHÔNG tự đồng bộ. Sau khi có PR merge vào `main`, mỗi người trong team chạy lại đúng lệnh ở Bước 1:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
 # hoặc nếu đã clone repo sẵn: bash sync.sh
 ```
-Script tự clone/pull `main` vào `~/.cache/zalo-pre-submit-review-skills` (cache riêng, tách khỏi checkout dev), rồi copy đúng 6 file runtime (`SKILL.md`, `checklist.md`, `checklist.docx`, `sources.json`, `check_updates.py`, `requirements.txt`, `CHANGELOG.md`) đè lên `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Nếu đã ở bản mới nhất, script báo và không làm gì thêm (an toàn chạy lại). Muốn tự động hoá thêm (cron/Task Scheduler chạy `sync.sh` hàng tuần) là tuỳ chọn của từng người, script không tự lên lịch.
+Script so sánh commit SHA cũ/mới: nếu chưa đổi gì → báo "đã ở bản mới nhất" và dừng, không ghi đè (an toàn chạy lại nhiều lần/nhiều máy). Nếu có đổi → copy đè `SKILL.md`, `checklist.md`, `checklist.docx`, `sources.json`, `check_updates.py`, `requirements.txt`, `CHANGELOG.md`, và in ra SHA cũ→mới + log các commit đổi nội dung checklist/skill để biết đổi gì.
 
-Đây là cơ chế đồng bộ **nội dung checklist trong repo này** (khi ai đó sửa/merge PR). Khác với `check_updates.py` — cái đó phát hiện khi **Zalo đổi tài liệu gốc** (nguồn bên ngoài repo), không liên quan đến việc đồng bộ máy-máy trong team.
+Không có push-notify tự động — team phải chủ động chạy lệnh trên (hoặc tự đặt lịch cron/Task Scheduler chạy `sync.sh` định kỳ). Đây là cơ chế đồng bộ **nội dung repo này**, khác với `check_updates.py` ở Bước 4 (phát hiện khi **Zalo** đổi tài liệu gốc — nguồn ngoài repo).
 
-### Kiểm tra checklist còn khớp tài liệu Zalo không
+### Bước 4 — Kiểm tra checklist còn khớp tài liệu Zalo không
 ```bash
-pip install -r requirements.txt
+cd ~/.omp/agent/managed-skills/zalo-pre-submit-review   # hoặc thư mục repo đã clone
+pip install -r requirements.txt   # 1 lần
 python3 check_updates.py
 ```
+Chạy định kỳ (khuyến nghị hàng tháng, hoặc bắt buộc trước khi dùng cho dự án/khách hàng mới). Script fetch lại 27 trang tài liệu gốc, so hash với baseline trong `sources.json`, báo trang nào đã đổi nội dung. Script **không tự sửa `checklist.md`** — chỉ báo hiệu cần đọc lại trang đó; quy trình cập nhật sau khi phát hiện đổi nằm ở mục "Cơ chế phản hồi & cập nhật" trong [`SKILL.md`](./SKILL.md).
 
-### Báo lỗi / đề xuất sửa
-Mở [Issue](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues) mới, kèm: mục checklist bị sai (dòng "— Nguồn: ..."), bằng chứng, đề xuất sửa. Chi tiết quy trình đầy đủ ở mục "Cơ chế phản hồi & cập nhật" trong `SKILL.md`.
+### Bước 5 — Báo lỗi / đề xuất sửa nội dung checklist
+Mở [Issue](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues) mới, kèm: mục checklist bị sai (dòng "— Nguồn: ..." của mục đó, dùng làm ID), bằng chứng (screenshot/link trang Zalo hiện tại, hoặc log cho thấy checklist báo sai khi chạy trên project thật), đề xuất sửa nếu có. Chi tiết quy trình đầy đủ ở mục "Cơ chế phản hồi & cập nhật" trong `SKILL.md`.
 
 ## Giới hạn quan trọng
 
