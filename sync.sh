@@ -30,16 +30,28 @@ else
 fi
 NEW_SHA="$(git -C "$CLONE_DIR" rev-parse HEAD)"
 
-if [ -n "$OLD_SHA" ] && [ "$OLD_SHA" = "$NEW_SHA" ]; then
+# "Up to date" only holds if the target dir is ALSO actually fully populated —
+# guards against a prior run whose git clone/fetch succeeded but whose file
+# copy step failed partway (e.g. a target file locked by another program),
+# which would otherwise be masked as "nothing to update" forever.
+NEEDS_COPY=0
+for f in "${RUNTIME_FILES[@]}"; do
+  [ -f "$TARGET_DIR/$f" ] || NEEDS_COPY=1
+done
+
+if [ -n "$OLD_SHA" ] && [ "$OLD_SHA" = "$NEW_SHA" ] && [ "$NEEDS_COPY" -eq 0 ]; then
   echo "[sync] Already up to date (commit ${NEW_SHA:0:7}) - nothing to update."
   exit 0
 fi
 
 mkdir -p "$TARGET_DIR"
 for f in "${RUNTIME_FILES[@]}"; do
-  cp "$CLONE_DIR/$f" "$TARGET_DIR/$f"
+  if ! cp -f "$CLONE_DIR/$f" "$TARGET_DIR/$f"; then
+    echo "[sync] ERROR: failed to copy $f to $TARGET_DIR (locked by another program? permissions?)" >&2
+    exit 1
+  fi
+  echo "[sync]   copied $f"
 done
-
 echo "[sync] Updated $TARGET_DIR"
 if [ -n "$OLD_SHA" ]; then
   echo "[sync] ${OLD_SHA:0:7} -> ${NEW_SHA:0:7}"
