@@ -31,7 +31,7 @@ fi
 NEW_SHA="$(git -C "$CLONE_DIR" rev-parse HEAD)"
 
 if [ -n "$OLD_SHA" ] && [ "$OLD_SHA" = "$NEW_SHA" ]; then
-  echo "[sync] Đã ở phiên bản mới nhất (commit ${NEW_SHA:0:7}) — không có gì để cập nhật."
+  echo "[sync] Already up to date (commit ${NEW_SHA:0:7}) - nothing to update."
   exit 0
 fi
 
@@ -40,11 +40,11 @@ for f in "${RUNTIME_FILES[@]}"; do
   cp "$CLONE_DIR/$f" "$TARGET_DIR/$f"
 done
 
-echo "[sync] Đã cập nhật $TARGET_DIR"
+echo "[sync] Updated $TARGET_DIR"
 if [ -n "$OLD_SHA" ]; then
   echo "[sync] ${OLD_SHA:0:7} -> ${NEW_SHA:0:7}"
-  echo "[sync] Thay đổi nội dung checklist/skill:"
+  echo "[sync] Checklist/skill content changes:"
   git -C "$CLONE_DIR" log --oneline "${OLD_SHA}..${NEW_SHA}" -- CHANGELOG.md checklist.md SKILL.md | sed 's/^/  /'
 else
-  echo "[sync] Lần cài đầu tiên (${NEW_SHA:0:7})."
+  echo "[sync] First-time install (${NEW_SHA:0:7})."
 fi

@@ -19,7 +19,7 @@ try:
     import requests
     from bs4 import BeautifulSoup
 except ImportError:
-    print("Thieu dependency. Chay: pip install requests beautifulsoup4")
+    print("Missing dependency. Run: pip install requests beautifulsoup4")
     sys.exit(1)
 
 HERE = Path(__file__).parent
@@ -58,7 +58,7 @@ def main():
 
         old_hash = meta.get("content_hash")
         if old_hash is None:
-            errored.append((url, "khong co baseline hash (trang loi lan truoc)"))
+            errored.append((url, "no baseline hash (page errored last time)"))
         elif h != old_hash:
             changed.append((url, meta.get("last_checked", "?")))
             if update:
@@ -69,24 +69,24 @@ def main():
         else:
             unchanged.append(url)
 
-    print(f"\n=== Ket qua kiem tra staleness ({time.strftime('%Y-%m-%d')}) ===\n")
-    print(f"Khong doi: {len(unchanged)}/{len(baseline)}")
+    print(f"\n=== Staleness check result ({time.strftime('%Y-%m-%d')}) ===\n")
+    print(f"Unchanged: {len(unchanged)}/{len(baseline)}")
     if changed:
-        print(f"\n>>> DA THAY DOI ({len(changed)}) — can doc lai va cap nhat checklist.md:")
+        print(f"\n>>> CHANGED ({len(changed)}) - re-read and update checklist.md:")
         for url, last in changed:
-            print(f"  - {url}  (baseline luc: {last})")
+            print(f"  - {url}  (baseline at: {last})")
     if errored:
-        print(f"\n>>> LOI khi fetch ({len(errored)}) — kiem tra URL con dung khong:")
+        print(f"\n>>> ERROR fetching ({len(errored)}) - check if URL is still valid:")
         for url, err in errored:
             print(f"  - {url}: {err}")
 
     if update and changed:
         SOURCES.write_text(json.dumps(baseline, indent=2, ensure_ascii=False), encoding='utf-8')
-        print(f"\nDa ghi sources.json voi hash moi cho {len(changed)} trang.")
-        print("NHAC: hash moi chi xac nhan 'da fetch lai', KHONG tu dong sua checklist.md — phai doc va sua tay/agent.")
+        print(f"\nWrote sources.json with new hash for {len(changed)} page(s).")
+        print("NOTE: a new hash only confirms 're-fetched', it does NOT auto-update checklist.md - read and edit it by hand/agent.")
 
     if not changed and not errored:
-        print("\nTat ca nguon khop baseline — checklist.md hien dang dong bo voi tai lieu Zalo.")
+        print("\nAll sources match baseline - checklist.md is in sync with Zalo documentation.")
 
 
 if __name__ == "__main__":
