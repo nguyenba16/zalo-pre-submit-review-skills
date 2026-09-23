@@ -34,10 +34,17 @@ if [ ! -d "$SKILLS_DIR" ]; then
 fi
 
 if [ -d "$CLONE_DIR/.git" ]; then
-  git -C "$CLONE_DIR" fetch origin main --quiet
+  if ! timeout 20 git -C "$CLONE_DIR" fetch origin main --quiet; then
+    echo "error: không fetch được '$REPO_URL' (mất mạng, chặn firewall/VPN công ty, hoặc GitHub không truy cập được từ máy này). Kiểm tra kết nối rồi chạy lại." >&2
+    exit 4
+  fi
 else
   mkdir -p "$(dirname "$CLONE_DIR")"
-  git clone --quiet "$REPO_URL" "$CLONE_DIR"
+  if ! timeout 20 git clone --quiet "$REPO_URL" "$CLONE_DIR"; then
+    echo "error: không clone được '$REPO_URL' (mất mạng, chặn firewall/VPN công ty, hoặc GitHub không truy cập được từ máy này). Kiểm tra kết nối rồi chạy lại." >&2
+    rm -rf "$CLONE_DIR"
+    exit 4
+  fi
 fi
 LATEST_SHA="$(git -C "$CLONE_DIR" rev-parse origin/main)"
 

@@ -62,9 +62,11 @@ Kênh report chính thức: [GitHub Issues của repo này](https://github.com/n
 ### 1b. Agent tự phát hiện sai trong lúc chạy thật — tự đề nghị mở Issue ngay
 
 Khi đang chạy pre-submit review cho 1 project thật và phát hiện `scan_static_checklist.py` hoặc 1 mục trong `checklist.md` cho kết quả rõ ràng sai (false positive/negative, không phải lỗi của project đang test) — **KHÔNG chỉ bỏ qua/tự vá tạm**. Ngay trong phiên làm việc:
-1. Hỏi user 1 câu ngắn: *"Phát hiện [mô tả lỗi ngắn] khi chạy skill zalo-pre-submit-review — có muốn tôi mở GitHub Issue report luôn không?"*.
-2. Nếu đồng ý, dùng `gh issue create --repo nguyenba16/zalo-pre-submit-review-skills --title "..." --label zalo-pre-submit-review --body "..."` — body tự điền đủ 3 thông tin ở mục 1, cộng thêm commit đang vendor (đọc `.vendor-meta.json` trong `.omp/skills/zalo-pre-submit-review/` của project hiện tại nếu cài theo Cách B, hoặc bỏ qua nếu cài Cách A/không tìm thấy file).
-3. Không tự ý sửa `scripts/scan_static_checklist.py`/`checklist.md` trong bản vendor cục bộ của project — sửa gốc phải qua PR vào repo `skill-claude`, theo đúng quy trình ở mục 3 dưới đây.
+1. **[WARN] Repo này là PUBLIC.** Không tự ý đính screenshot/log chứa nội dung thật của project/khách hàng đang review vào bằng chứng. Mô tả bằng chứng dưới dạng văn bản (vd "mục X báo FAIL dù `<pattern cụ thể, đã ẩn tên khách hàng>` hợp lệ") — chỉ đính ảnh/log gốc nếu user xác nhận rõ ràng nó không chứa thông tin nhạy cảm.
+2. Trước khi tạo issue mới, tìm issue trùng: `gh issue list --repo nguyenba16/zalo-pre-submit-review-skills --search "<từ khoá mô tả lỗi>" --state all`. Có issue trùng → comment bổ sung bằng chứng vào issue đó (`gh issue comment <số> --body "..."`) thay vì tạo mới.
+3. Không thấy trùng, hỏi user 1 câu ngắn: *"Phát hiện [mô tả lỗi ngắn, đã ẩn thông tin nhạy cảm] khi chạy skill zalo-pre-submit-review — có muốn tôi mở GitHub Issue report luôn không (repo public)?"*.
+4. Nếu đồng ý, dùng `gh issue create --repo nguyenba16/zalo-pre-submit-review-skills --title "..." --label zalo-pre-submit-review --body "..."` — body tự điền đủ 3 thông tin ở mục 1, cộng thêm commit đang vendor (đọc `.vendor-meta.json` trong `.omp/skills/zalo-pre-submit-review/` của project hiện tại nếu cài theo Cách B, hoặc bỏ qua nếu cài Cách A/không tìm thấy file).
+5. Không tự ý sửa `scripts/scan_static_checklist.py`/`checklist.md` trong bản vendor cục bộ của project — sửa gốc phải qua PR vào repo `skill-claude`, theo đúng quy trình ở mục 3 dưới đây.
 
 ### 2. Phát hiện tài liệu Zalo đã đổi — `check_updates.py`
 

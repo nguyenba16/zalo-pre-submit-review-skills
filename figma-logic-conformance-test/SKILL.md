@@ -72,9 +72,11 @@ Kênh report chính thức: [GitHub Issues của repo `skill-claude`](https://gi
 ### 2. Agent tự phát hiện sai trong lúc chạy thật — tự đề nghị mở Issue ngay
 
 Khi đang chạy Lane A/Lane B cho 1 project thật và phát hiện script (`export_figma_frames.py`, `extract_logic_rules.py`) hoặc hướng dẫn trong skill này cho kết quả rõ ràng sai (không phải lỗi của project đang test) — **KHÔNG chỉ sửa chữa tạm rồi bỏ qua**. Ngay trong phiên làm việc:
-1. Hỏi user 1 câu ngắn: *"Phát hiện [mô tả lỗi ngắn] khi chạy skill figma-logic-conformance-test — có muốn tôi mở GitHub Issue report luôn không?"*.
-2. Nếu đồng ý, dùng `gh issue create --repo nguyenba16/zalo-pre-submit-review-skills --title "..." --label figma-logic-conformance-test --body "..."` — body tự điền đủ 3 thông tin ở mục 1, cộng thêm commit đang vendor (đọc `.vendor-meta.json` trong `.omp/skills/figma-logic-conformance-test/` của project hiện tại nếu cài theo Cách B, hoặc bỏ qua nếu cài Cách A/không tìm thấy file).
-3. Không tự ý sửa `scripts/*.py` trong bản vendor cục bộ của project — sửa gốc phải qua PR vào repo `skill-claude`, theo đúng quy trình ở mục 1.
+1. **[WARN] Repo này là PUBLIC.** Không tự ý đính ảnh Figma/screenshot app thật hoặc trích đoạn `logic.md` chứa thông tin nghiệp vụ nhạy cảm của khách hàng vào bằng chứng. Mô tả bằng chứng dưới dạng văn bản trung tính (vd "Lane A báo FAIL dù layout khớp — do vision-model prompt hiểu nhầm ảnh nền trang trí là thiếu component") — chỉ đính ảnh/trích đoạn gốc nếu user xác nhận rõ ràng nó không chứa thông tin nhạy cảm.
+2. Trước khi tạo issue mới, tìm issue trùng: `gh issue list --repo nguyenba16/zalo-pre-submit-review-skills --search "<từ khoá mô tả lỗi>" --state all`. Có issue trùng → comment bổ sung bằng chứng vào issue đó (`gh issue comment <số> --body "..."`) thay vì tạo mới.
+3. Không thấy trùng, hỏi user 1 câu ngắn: *"Phát hiện [mô tả lỗi ngắn, đã ẩn thông tin nhạy cảm] khi chạy skill figma-logic-conformance-test — có muốn tôi mở GitHub Issue report luôn không (repo public)?"*.
+4. Nếu đồng ý, dùng `gh issue create --repo nguyenba16/zalo-pre-submit-review-skills --title "..." --label figma-logic-conformance-test --body "..."` — body tự điền đủ 3 thông tin ở mục 1, cộng thêm commit đang vendor (đọc `.vendor-meta.json` trong `.omp/skills/figma-logic-conformance-test/` của project hiện tại nếu cài theo Cách B, hoặc bỏ qua nếu cài Cách A/không tìm thấy file).
+5. Không tự ý sửa `scripts/*.py` trong bản vendor cục bộ của project — sửa gốc phải qua PR vào repo `skill-claude`, theo đúng quy trình ở mục 1.
 
 ## Giới hạn quan trọng
 
