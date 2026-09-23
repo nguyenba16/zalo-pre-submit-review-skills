@@ -21,6 +21,25 @@ REPO_URL="https://github.com/nguyenba16/zalo-pre-submit-review-skills.git"
 CLONE_DIR="${SKILLS_CLONE_DIR:-$HOME/.cache/zalo-pre-submit-review-skills}"
 TARGET_DIR="${1:-.}"
 
+# `timeout` là GNU coreutils — macOS mặc định KHÔNG có (chỉ có nếu `brew
+# install coreutils`, dưới tên `gtimeout`). Không dùng bash array cho lệnh
+# timeout (rỗng dưới `set -u` sẽ vỡ trên bash 3.2 — bash mặc định của macOS,
+# `/usr/bin/env bash` vẫn resolve về bản này). Dùng hàm wrapper string thay thế.
+HAVE_TIMEOUT=""
+if command -v timeout >/dev/null 2>&1; then
+  HAVE_TIMEOUT="timeout"
+elif command -v gtimeout >/dev/null 2>&1; then
+  HAVE_TIMEOUT="gtimeout"
+fi
+
+run_git() {
+  if [ -n "$HAVE_TIMEOUT" ]; then
+    "$HAVE_TIMEOUT" 20 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 "$@"
+  else
+    git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 "$@"
+  fi
+}
+
 if [ ! -d "$TARGET_DIR" ]; then
   echo "error: '$TARGET_DIR' không phải thư mục tồn tại" >&2
   exit 2
@@ -34,13 +53,13 @@ if [ ! -d "$SKILLS_DIR" ]; then
 fi
 
 if [ -d "$CLONE_DIR/.git" ]; then
-  if ! timeout 20 git -C "$CLONE_DIR" fetch origin main --quiet; then
+  if ! run_git -C "$CLONE_DIR" fetch origin main --quiet; then
     echo "error: không fetch được '$REPO_URL' (mất mạng, chặn firewall/VPN công ty, hoặc GitHub không truy cập được từ máy này). Kiểm tra kết nối rồi chạy lại." >&2
     exit 4
   fi
 else
   mkdir -p "$(dirname "$CLONE_DIR")"
-  if ! timeout 20 git clone --quiet "$REPO_URL" "$CLONE_DIR"; then
+  if ! run_git clone --quiet "$REPO_URL" "$CLONE_DIR"; then
     echo "error: không clone được '$REPO_URL' (mất mạng, chặn firewall/VPN công ty, hoặc GitHub không truy cập được từ máy này). Kiểm tra kết nối rồi chạy lại." >&2
     rm -rf "$CLONE_DIR"
     exit 4
