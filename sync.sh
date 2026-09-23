@@ -68,7 +68,7 @@ echo "[sync] Updated $TARGET_DIR"
 if [ -n "$OLD_SHA" ]; then
   echo "[sync] ${OLD_SHA:0:7} -> ${NEW_SHA:0:7}"
   echo "[sync] Checklist/skill content changes:"
-  git -C "$CLONE_DIR" log --oneline "${OLD_SHA}..${NEW_SHA}" -- CHANGELOG.md checklist.md SKILL.md | sed 's/^/  /'
+  git -C "$CLONE_DIR" log --oneline "${OLD_SHA}..${NEW_SHA}" -- CHANGELOG.md checklist.md SKILL.md TESTING.md scripts/ | sed 's/^/  /'
 else
   echo "[sync] First-time install (${NEW_SHA:0:7})."
 fi
