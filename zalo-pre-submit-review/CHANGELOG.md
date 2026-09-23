@@ -2,6 +2,11 @@
 
 Ghi lại mọi thay đổi nội dung checklist (không ghi log hash-only từ check_updates.py --update trừ khi kèm sửa nội dung thật).
 
+## [1.2.0] — 2026-09-23
+- Repo restructure: chuyển từ layout 1-skill-per-repo sang **monorepo nhiều skill** (`skill-claude`) — mọi file của skill này (SKILL.md, checklist.md/.docx, TESTING.md, scripts/, sources.json, check_updates.py, requirements.txt, file CHANGELOG này) chuyển vào thư mục con `zalo-pre-submit-review/` (dùng `git mv`, giữ lịch sử). Thêm skill thứ 2 `figma-logic-conformance-test/` cùng repo.
+- `sync.sh` viết lại thành generic: tự phát hiện MỌI thư mục con có `SKILL.md` và đồng bộ tất cả vào `~/.omp/agent/managed-skills/<tên-skill>/` — không còn danh sách file cứng riêng cho skill này. Đã test end-to-end (fresh install + idempotency) bằng git remote/target tạm, không đụng GitHub thật/máy thật.
+- Env var override đổi tên: `ZPSR_CLONE_DIR`/`ZPSR_TARGET_DIR` → `SKILLS_CLONE_DIR`/`SKILLS_TARGET_ROOT` (phạm vi rộng hơn, không còn riêng cho 1 skill).
+
 ## [1.1.0] — 2026-09-23
 - Thêm `scripts/scan_static_checklist.py`: scanner tất định (regex/JSON, không LLM) cho tập con cơ học nhất của các mục `Automatable: yes` (Nhóm A/C/D/E — tên/logo/URL/secret/size/config), output PASS/FAIL/WARN/SKIP + evidence `file:line`, exit code 1 nếu FAIL (CI-gate được). Đã smoke-test trên project fixture tổng hợp (all-caps name, link trong mô tả, đăng nhập Google, `http://` literal) — đúng như kỳ vọng.
 - Thêm `TESTING.md`: playbook 2 tầng test (browser-preview Playwright tự động hoá + real-device thủ công có GIF bằng chứng), trỏ tới 3 managed skill test chuyên biệt sẵn có (`zalo-mini-app-browser-testing`, `zalo-miniapp-real-device-gif-capture`, `mobile-device-test-record-gif`) thay vì trùng lặp nội dung setup của chúng.

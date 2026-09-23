@@ -59,6 +59,13 @@ Không sửa trực tiếp `checklist.md` khi chưa chắc chắn. Report kèm �
 
 Kênh report chính thức: [GitHub Issues của repo này](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues) — tạo issue mới, dán đủ 3 thông tin trên vào mô tả. Muốn tự sửa: fork/branch, sửa theo quy trình mục 3, mở Pull Request (không push thẳng lên `main`).
 
+### 1b. Agent tự phát hiện sai trong lúc chạy thật — tự đề nghị mở Issue ngay
+
+Khi đang chạy pre-submit review cho 1 project thật và phát hiện `scan_static_checklist.py` hoặc 1 mục trong `checklist.md` cho kết quả rõ ràng sai (false positive/negative, không phải lỗi của project đang test) — **KHÔNG chỉ bỏ qua/tự vá tạm**. Ngay trong phiên làm việc:
+1. Hỏi user 1 câu ngắn: *"Phát hiện [mô tả lỗi ngắn] khi chạy skill zalo-pre-submit-review — có muốn tôi mở GitHub Issue report luôn không?"*.
+2. Nếu đồng ý, dùng `gh issue create --repo nguyenba16/zalo-pre-submit-review-skills --title "..." --label zalo-pre-submit-review --body "..."` — body tự điền đủ 3 thông tin ở mục 1, cộng thêm commit đang vendor (đọc `.vendor-meta.json` trong `.omp/skills/zalo-pre-submit-review/` của project hiện tại nếu cài theo Cách B, hoặc bỏ qua nếu cài Cách A/không tìm thấy file).
+3. Không tự ý sửa `scripts/scan_static_checklist.py`/`checklist.md` trong bản vendor cục bộ của project — sửa gốc phải qua PR vào repo `skill-claude`, theo đúng quy trình ở mục 3 dưới đây.
+
 ### 2. Phát hiện tài liệu Zalo đã đổi — `check_updates.py`
 
 `sources.json` lưu content-hash của 27 trang tài liệu gốc (baseline chụp lúc 2026-09-03). Chạy định kỳ (khuyến nghị: hàng tháng, hoặc bắt buộc trước khi dùng skill cho 1 dự án lớn/khách hàng mới):

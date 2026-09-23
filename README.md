@@ -1,77 +1,70 @@
-# zalo-pre-submit-review
+# skill-claude — bộ skill AI-agent nội bộ công ty
 
-AI-agent skill (Claude/omp managed skill format) + checklist tài liệu để chạy pre-flight QA trên một Zalo Mini App **trước khi nộp xét duyệt** — bắt trước các lỗi khiến hồ sơ bị Zalo từ chối/chậm duyệt (mỗi vòng duyệt mất 3–7 ngày làm việc).
+Bộ skill (Claude Code/omp managed skill format) để clone 1 lần, đồng bộ tất cả bằng `sync.sh`, dùng chung cho cả team. Mỗi skill nằm trong 1 thư mục con ở root repo, tự chứa (SKILL.md + tài nguyên riêng) — thêm skill mới chỉ cần thêm 1 thư mục con, không phải sửa cơ chế đồng bộ.
+
+## Danh sách skill
+
+| Skill | Thư mục | Dùng khi nào |
+|---|---|---|
+| **zalo-pre-submit-review** | [`zalo-pre-submit-review/`](./zalo-pre-submit-review/) | Trước khi nộp xét duyệt 1 Zalo Mini App — pre-flight QA đối chiếu 217 mục chính sách kiểm duyệt/pháp lý/kỹ thuật Zalo, kèm scanner tự động + playbook test browser-preview & real-device. |
+| **figma-logic-conformance-test** | [`figma-logic-conformance-test/`](./figma-logic-conformance-test/) | Khi BA giao Figma mockup + file `.md` logic nghiệp vụ cho dev — đối chiếu UI đã build với Figma (Lane A) và logic đã code với `.md` (Lane B). |
 
 ## Trạng thái
 
-⚠️ **Bản nháp — chưa qua review thủ công, chưa test trên project thật.** Xem mục "Giới hạn" trong [`SKILL.md`](./SKILL.md) trước khi dùng cho khách hàng/dự án thật. Đóng góp/report lỗi qua [Issues](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues).
-
-## Nội dung repo
-
-| File | Mô tả |
-|---|---|
-| [`SKILL.md`](./SKILL.md) | Hướng dẫn dùng skill cho AI agent (khi nào dùng, cách chạy pre-submit review tối ưu token, cơ chế phản hồi/cập nhật, giới hạn). |
-| [`checklist.md`](./checklist.md) | Checklist đầy đủ **217 mục**, chia 6 nhóm A–F, mỗi mục có nguồn (URL#anchor tài liệu chính thức Zalo) + hậu quả nếu vi phạm + nhãn `Automatable: yes/partial/no`. |
-| [`checklist.docx`](./checklist.docx) | Bản Word cùng nội dung, dùng cho người phụ trách nội dung/pháp lý không quen Markdown. |
-| [`scripts/scan_static_checklist.py`](./scripts/scan_static_checklist.py) | Scanner tất định (regex/JSON, không LLM) cho tập con cơ học nhất của các mục `Automatable: yes` — chạy <1s, output PASS/FAIL/WARN/SKIP + `file:line`, exit code 1 nếu có FAIL (dùng làm CI gate được). |
-| [`TESTING.md`](./TESTING.md) | Playbook 2 tầng test (browser-preview Playwright tự động hoá + real-device thủ công có GIF bằng chứng) cho các mục checklist chỉ xác nhận được bằng cách chạy app thật (login, xin quyền, Checkout SDK, hiệu suất). |
-| [`sources.json`](./sources.json) | Baseline content-hash của 27 trang tài liệu gốc mini.zalo.me/docs.zaloplatforms.com — dùng để phát hiện khi Zalo đổi tài liệu. |
-| [`check_updates.py`](./check_updates.py) | Script kiểm tra staleness: fetch lại 27 URL nguồn, so hash với baseline, báo cáo trang nào đã đổi. |
-| [`CHANGELOG.md`](./CHANGELOG.md) | Lịch sử thay đổi nội dung checklist. |
-| [`requirements.txt`](./requirements.txt) | Dependency cho `check_updates.py` và (tuỳ chọn) `scripts/scan_static_checklist.py`. |
-| [`sync.sh`](./sync.sh) | Script team dùng để kéo bản mới nhất từ GitHub về `~/.omp/agent/managed-skills/zalo-pre-submit-review/` local — chạy lại được nhiều lần, tự báo nếu đã ở bản mới nhất. |
-
-## 6 nhóm checklist
-
-- **A** — Chính sách nội dung & kiểm duyệt (53 mục)
-- **B** — Pháp lý: KYB/eKYC, giấy phép ngành nghề có điều kiện, Nghị định 13 (58 mục)
-- **C** — Lỗi kỹ thuật dev/build/runtime (24 mục)
-- **D** — UI/UX, điều hướng, xác thực người dùng (23 mục)
-- **E** — Quy trình nộp duyệt & khai báo quyền (55 mục)
-- **F** — Bổ sung (4 mục)
-
-92 mục agent tự kiểm 100% được (`yes`), 75 mục agent chỉ cảnh báo (`partial`), 50 mục thuần thủ công/pháp lý (`no`) — xem bảng thống kê đầu `checklist.md`.
+⚠️ **Cả 2 skill đều là bản nháp** — chưa qua review thủ công/pháp lý, chưa chạy trên project thật của công ty. Xem mục "Giới hạn quan trọng" trong `SKILL.md` của từng skill trước khi dùng cho khách hàng/dự án thật. Đóng góp/report lỗi qua [Issues](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues).
 
 ## Hướng dẫn sử dụng (HDSD)
 
 ### Yêu cầu môi trường
 - Git + Bash để chạy `sync.sh`. Trên **Windows dùng Git Bash** (đi kèm Git for Windows) — không chạy `sync.sh` bằng CMD/PowerShell thuần.
-- Python 3 (chỉ cần nếu muốn tự chạy `check_updates.py`).
-- Một AI agent hỗ trợ managed skills (Claude Code / omp / ckit) — skill này không phải app chạy độc lập, nó là tài liệu + checklist để agent đọc và tự thực hiện review khi làm việc trên dự án Zalo Mini App.
+- Python 3 + `pip install -r requirements.txt` bên trong từng thư mục skill (mỗi skill có `requirements.txt` riêng, dependency khác nhau).
+- Một AI agent hỗ trợ managed skills (Claude Code / omp / ckit) — các skill này không phải app chạy độc lập, đó là tài liệu + script để agent đọc và tự thực hiện review/test.
 
-### Bước 1 — Cài lần đầu
-Chạy trong Git Bash (Windows) hoặc terminal (Mac/Linux):
+### Bước 1 — Cài lần đầu (2 cách, chọn 1 theo nhu cầu)
+
+**Cách A — cài global (`sync.sh`)**: dùng skill trên nhiều project khác nhau, không cần biết trước sẽ làm project nào.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
 ```
-Lệnh này tự clone repo về cache (`~/.cache/zalo-pre-submit-review-skills`) và copy 7 file + `scripts/` runtime vào `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Sau bước này agent sẽ tự nhận diện skill ở phiên làm việc tiếp theo — không cần cấu hình thêm.
+Tự clone repo về cache (`~/.cache/zalo-pre-submit-review-skills`), tự phát hiện mọi thư mục con có `SKILL.md`, copy từng skill vào `~/.omp/agent/managed-skills/<tên-skill>/`. Cài 1 lần trên máy, dùng được cho MỌI project mở trên máy đó — nhưng riêng máy, người khác clone project không tự có skill.
 
-### Bước 2 — Chạy pre-submit review trên một dự án Mini App
-Mở agent (Claude Code/omp/ckit) tại thư mục dự án Zalo Mini App, yêu cầu kiểu: *"chạy pre-submit review theo skill zalo-pre-submit-review trước khi nộp duyệt"*. Agent sẽ tự đọc `SKILL.md` để biết quy trình: chạy `scripts/scan_static_checklist.py` trước (giây, tất định) → đọc checklist 1 lần → tóm tắt cấu trúc dự án → dispatch song song các nhóm A/C/D/E còn lại chưa được scanner trả lời → (nếu yêu cầu bao gồm "app có chạy đúng không") chạy testing 2 tầng theo `TESTING.md` (Playwright browser-preview + real-device có GIF bằng chứng) → tổng hợp báo cáo PASS/FAIL/WARN kèm bằng chứng `file:line`/GIF. Nhóm B/F (pháp lý) không tự kiểm bằng code — agent liệt kê thành checklist thủ công cho người phụ trách, không tự kết luận đạt/không đạt.
+**Cách B — vendor project-local (`install-local.sh`)**: gắn skill trực tiếp vào 1 project cụ thể, để ai clone project đó cũng có sẵn skill (không ai phải tự cài gì).
+```bash
+git clone https://github.com/nguyenba16/zalo-pre-submit-review-skills.git /tmp/skill-claude
+bash /tmp/skill-claude/install-local.sh /đường/dẫn/project-đích           # copy tất cả skill
+bash /tmp/skill-claude/install-local.sh /đường/dẫn/project-đích zalo-pre-submit-review   # chỉ 1 skill cụ thể
+cd /đường/dẫn/project-đích && git add .omp/skills && git commit -m "vendor AI skill(s) into project"
+```
+Script copy vào `<project-đích>/.omp/skills/<tên-skill>/` (đúng convention project-local skill của công ty). Sau khi commit, `.omp/skills/` là 1 phần của repo project đích — clone project đích về là agent tự nạp skill ngay, không cần chạy `sync.sh`/cài gì thêm trên máy mới. Cập nhật khi repo skill đổi: chạy lại `install-local.sh` rồi commit lại vào project đích.
 
-**Đọc kỹ trước khi trình bày kết quả với khách hàng**: mục "Trạng thái" (đầu file này) và "Giới hạn quan trọng" (cuối file này) — đây là bản nháp, chưa qua review pháp lý cho Nhóm B.
+### Bước 2 — Dùng skill
+Mở agent (Claude Code/omp/ckit) tại thư mục dự án, yêu cầu theo đúng tên skill cần dùng, ví dụ:
+- *"chạy pre-submit review theo skill zalo-pre-submit-review trước khi nộp duyệt"* — xem chi tiết quy trình trong [`zalo-pre-submit-review/SKILL.md`](./zalo-pre-submit-review/SKILL.md).
+- *"kiểm tra UI/logic theo skill figma-logic-conformance-test với file logic.md và Figma file này"* — xem chi tiết trong [`figma-logic-conformance-test/SKILL.md`](./figma-logic-conformance-test/SKILL.md).
 
-### Bước 3 — Cập nhật khi repo có thay đổi (mỗi thành viên team tự chạy trên máy mình)
-Repo GitHub là nguồn duy nhất (single source of truth); bản trong `~/.omp/agent/managed-skills/` chỉ là bản copy cục bộ, KHÔNG tự đồng bộ. Sau khi có PR merge vào `main`, mỗi người trong team chạy lại đúng lệnh ở Bước 1:
+**Đọc kỹ trước khi trình bày kết quả với khách hàng/nội bộ**: mục "Giới hạn quan trọng" ở cuối `SKILL.md` của từng skill — cả 2 đều là bản nháp.
+
+### Bước 3 — Cập nhật khi repo có thay đổi
+Repo GitHub là nguồn duy nhất (single source of truth).
+
+**Nếu cài theo Cách A** (global): bản trong `~/.omp/agent/managed-skills/` chỉ là bản copy cục bộ, KHÔNG tự đồng bộ — mỗi thành viên team tự chạy lại đúng lệnh ở Bước 1 trên máy mình:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
 # hoặc nếu đã clone repo sẵn: bash sync.sh
 ```
-Script so sánh commit SHA cũ/mới: nếu chưa đổi gì → báo "đã ở bản mới nhất" và dừng, không ghi đè (an toàn chạy lại nhiều lần/nhiều máy). Nếu có đổi → copy đè `SKILL.md`, `checklist.md`, `checklist.docx`, `sources.json`, `check_updates.py`, `requirements.txt`, `CHANGELOG.md`, và in ra SHA cũ→mới + log các commit đổi nội dung checklist/skill để biết đổi gì.
+Script so sánh commit SHA cũ/mới: nếu chưa đổi gì → báo "đã ở bản mới nhất" và dừng (an toàn chạy lại nhiều lần/nhiều máy). Nếu có đổi → đồng bộ lại toàn bộ nội dung mọi skill, in ra SHA cũ→mới + log các commit đã đổi. Không có push-notify tự động — team phải chủ động chạy lệnh trên (hoặc tự đặt lịch cron/Task Scheduler chạy `sync.sh` định kỳ).
 
-Không có push-notify tự động — team phải chủ động chạy lệnh trên (hoặc tự đặt lịch cron/Task Scheduler chạy `sync.sh` định kỳ). Đây là cơ chế đồng bộ **nội dung repo này**, khác với `check_updates.py` ở Bước 4 (phát hiện khi **Zalo** đổi tài liệu gốc — nguồn ngoài repo).
-
-### Bước 4 — Kiểm tra checklist còn khớp tài liệu Zalo không
+**Nếu cài theo Cách B** (vendor project-local) — đây là vấn đề khó hơn: sau khi copy tĩnh vào project đích, project đó **không còn liên kết gì với repo skill gốc**, nên không ai tự biết khi nào cần cập nhật. Giải quyết bằng `check-local-updates.sh` — mỗi skill được vendor sẽ có kèm `.vendor-meta.json` ghi lại đúng commit gốc tại thời điểm copy; script này so sánh commit đó với `main` mới nhất trên GitHub, CHỈ báo lỗi thời khi có commit thật sự đổi đúng thư mục skill đó (không báo ồn ào nếu người khác chỉ sửa skill khác không liên quan):
 ```bash
-cd ~/.omp/agent/managed-skills/zalo-pre-submit-review   # hoặc thư mục repo đã clone
-pip install -r requirements.txt   # 1 lần
-python3 check_updates.py
+bash check-local-updates.sh /đường/dẫn/project-đích
 ```
-Chạy định kỳ (khuyến nghị hàng tháng, hoặc bắt buộc trước khi dùng cho dự án/khách hàng mới). Script fetch lại 27 trang tài liệu gốc, so hash với baseline trong `sources.json`, báo trang nào đã đổi nội dung. Script **không tự sửa `checklist.md`** — chỉ báo hiệu cần đọc lại trang đó; quy trình cập nhật sau khi phát hiện đổi nằm ở mục "Cơ chế phản hồi & cập nhật" trong [`SKILL.md`](./SKILL.md).
+Exit code `3` nếu có skill lỗi thời (dùng được làm CI job định kỳ/cron cảnh báo), `0` nếu mọi skill đã vendor đều mới nhất. Thấy lỗi thời → chạy lại `install-local.sh` cho đúng skill đó rồi commit lại vào project đích. Chạy định kỳ (khuyến nghị hàng tháng, giống lịch chạy `check_updates.py` của skill zalo-pre-submit-review) — không có push-notify tự động, đây vẫn là cơ chế cần chủ động chạy, không phải theo dõi nền.
 
-### Bước 5 — Báo lỗi / đề xuất sửa nội dung checklist
-Mở [Issue](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues) mới, kèm: mục checklist bị sai (dòng "— Nguồn: ..." của mục đó, dùng làm ID), bằng chứng (screenshot/link trang Zalo hiện tại, hoặc log cho thấy checklist báo sai khi chạy trên project thật), đề xuất sửa nếu có. Chi tiết quy trình đầy đủ ở mục "Cơ chế phản hồi & cập nhật" trong `SKILL.md`.
+### Bước 4 — Báo lỗi / đề xuất sửa nội dung 1 skill
+Mở [Issue](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues/new/choose) mới bằng template **"Báo lỗi / đề xuất sửa 1 skill"** (`.github/ISSUE_TEMPLATE/skill-bug-report.yml`) — form đã có sẵn field bắt buộc (skill nào, ID mục/rule sai, bằng chứng) + field tuỳ chọn (đề xuất sửa, commit đang vendor nếu cài theo Cách B). Không cần tự nhớ format tay.
+
+**Không chỉ user mới report được** — cả 2 SKILL.md đều có mục "Agent tự phát hiện sai trong lúc chạy thật": nếu agent phát hiện checklist/scanner báo sai ngay trong lúc đang chạy review cho 1 project thật, agent tự hỏi user có muốn mở Issue luôn không (qua `gh issue create`, tự điền sẵn bằng chứng), thay vì để user tự nhớ làm sau. Chi tiết quy trình đầy đủ cho từng skill nằm trong `SKILL.md` tương ứng (mục "Cơ chế phản hồi & cập nhật").
 
 ## Giới hạn quan trọng
 
-Đây là **pre-flight QA hỗ trợ nội bộ**, KHÔNG thay thế đội kiểm duyệt của Zalo — Zalo vẫn có quyết định cuối cùng. Nội dung pháp lý (Nhóm B) chưa được người có chuyên môn pháp lý review — dùng để tham khảo, không dùng làm căn cứ pháp lý chính thức.
+Đây là bộ tài liệu/script **hỗ trợ nội bộ**, KHÔNG thay thế review của người có chuyên môn (Zalo review team cho compliance, BA/QA cho logic nghiệp vụ). Nội dung pháp lý (Nhóm B trong `zalo-pre-submit-review`) chưa được người có chuyên môn pháp lý review — dùng để tham khảo, không dùng làm căn cứ pháp lý chính thức.

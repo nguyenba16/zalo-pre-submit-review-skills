@@ -1,0 +1,62 @@
+name: Báo lỗi / đề xuất sửa 1 skill
+description: Report 1 mục checklist/rule sai, 1 false positive/negative của scanner, hoặc đề xuất sửa nội dung skill.
+labels: []
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill nào
+      options:
+        - zalo-pre-submit-review
+        - figma-logic-conformance-test
+    validations:
+      required: true
+
+  - type: input
+    id: item-id
+    attributes:
+      label: Định danh mục/rule sai
+      description: >
+        zalo-pre-submit-review: dòng "— Nguồn: <URL#anchor>" của mục đó trong checklist.md.
+        figma-logic-conformance-test: node id Figma (Lane A) hoặc id/line rule trong output extract_logic_rules.py (Lane B).
+      placeholder: "vd: regulated-products-and-services/#i-hàng-hoá-2 (mục 25)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bằng chứng
+      description: >
+        Screenshot/link trang Zalo hiện tại khác checklist, ảnh so sánh Figma vs app thật,
+        hoặc log cho thấy checklist/scanner báo sai (false positive/negative) khi chạy trên project thật.
+        Kèm file:line code nếu liên quan.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-fix
+    attributes:
+      label: Đề xuất sửa (nếu có)
+    validations:
+      required: false
+
+  - type: input
+    id: vendored-commit
+    attributes:
+      label: Commit đang vendor (nếu cài theo Cách B)
+      description: >
+        Chỉ áp dụng nếu skill được cài qua install-local.sh (vendor project-local).
+        Lấy giá trị "commit" trong <project>/.omp/skills/<tên-skill>/.vendor-meta.json.
+        Bỏ trống nếu cài Cách A (global, sync.sh) hoặc không tìm thấy file.
+      placeholder: "vd: 55f2af7eea0f8496953d0c5ff31ca27e0125653a"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: reported-by-agent
+    attributes:
+      label: Nguồn report
+      options:
+        - label: Report này do AI agent tự mở (theo mục "Agent tự phát hiện sai" trong SKILL.md), không phải user tự viết tay.
+          required: false
