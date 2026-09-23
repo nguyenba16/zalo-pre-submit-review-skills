@@ -13,10 +13,12 @@ AI-agent skill (Claude/omp managed skill format) + checklist tài liệu để c
 | [`SKILL.md`](./SKILL.md) | Hướng dẫn dùng skill cho AI agent (khi nào dùng, cách chạy pre-submit review tối ưu token, cơ chế phản hồi/cập nhật, giới hạn). |
 | [`checklist.md`](./checklist.md) | Checklist đầy đủ **217 mục**, chia 6 nhóm A–F, mỗi mục có nguồn (URL#anchor tài liệu chính thức Zalo) + hậu quả nếu vi phạm + nhãn `Automatable: yes/partial/no`. |
 | [`checklist.docx`](./checklist.docx) | Bản Word cùng nội dung, dùng cho người phụ trách nội dung/pháp lý không quen Markdown. |
+| [`scripts/scan_static_checklist.py`](./scripts/scan_static_checklist.py) | Scanner tất định (regex/JSON, không LLM) cho tập con cơ học nhất của các mục `Automatable: yes` — chạy <1s, output PASS/FAIL/WARN/SKIP + `file:line`, exit code 1 nếu có FAIL (dùng làm CI gate được). |
+| [`TESTING.md`](./TESTING.md) | Playbook 2 tầng test (browser-preview Playwright tự động hoá + real-device thủ công có GIF bằng chứng) cho các mục checklist chỉ xác nhận được bằng cách chạy app thật (login, xin quyền, Checkout SDK, hiệu suất). |
 | [`sources.json`](./sources.json) | Baseline content-hash của 27 trang tài liệu gốc mini.zalo.me/docs.zaloplatforms.com — dùng để phát hiện khi Zalo đổi tài liệu. |
 | [`check_updates.py`](./check_updates.py) | Script kiểm tra staleness: fetch lại 27 URL nguồn, so hash với baseline, báo cáo trang nào đã đổi. |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Lịch sử thay đổi nội dung checklist. |
-| [`requirements.txt`](./requirements.txt) | Dependency cho `check_updates.py`. |
+| [`requirements.txt`](./requirements.txt) | Dependency cho `check_updates.py` và (tuỳ chọn) `scripts/scan_static_checklist.py`. |
 | [`sync.sh`](./sync.sh) | Script team dùng để kéo bản mới nhất từ GitHub về `~/.omp/agent/managed-skills/zalo-pre-submit-review/` local — chạy lại được nhiều lần, tự báo nếu đã ở bản mới nhất. |
 
 ## 6 nhóm checklist
@@ -42,10 +44,10 @@ Chạy trong Git Bash (Windows) hoặc terminal (Mac/Linux):
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nguyenba16/zalo-pre-submit-review-skills/main/sync.sh | bash
 ```
-Lệnh này tự clone repo về cache (`~/.cache/zalo-pre-submit-review-skills`) và copy 6 file runtime vào `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Sau bước này agent sẽ tự nhận diện skill ở phiên làm việc tiếp theo — không cần cấu hình thêm.
+Lệnh này tự clone repo về cache (`~/.cache/zalo-pre-submit-review-skills`) và copy 7 file + `scripts/` runtime vào `~/.omp/agent/managed-skills/zalo-pre-submit-review/`. Sau bước này agent sẽ tự nhận diện skill ở phiên làm việc tiếp theo — không cần cấu hình thêm.
 
 ### Bước 2 — Chạy pre-submit review trên một dự án Mini App
-Mở agent (Claude Code/omp/ckit) tại thư mục dự án Zalo Mini App, yêu cầu kiểu: *"chạy pre-submit review theo skill zalo-pre-submit-review trước khi nộp duyệt"*. Agent sẽ tự đọc `SKILL.md` để biết quy trình (đọc checklist 1 lần → tóm tắt cấu trúc dự án → dispatch song song các nhóm A/C/D/E tự kiểm được → tổng hợp báo cáo PASS/FAIL/WARN kèm bằng chứng `file:line`). Nhóm B/F (pháp lý) không tự kiểm bằng code — agent liệt kê thành checklist thủ công cho người phụ trách, không tự kết luận đạt/không đạt.
+Mở agent (Claude Code/omp/ckit) tại thư mục dự án Zalo Mini App, yêu cầu kiểu: *"chạy pre-submit review theo skill zalo-pre-submit-review trước khi nộp duyệt"*. Agent sẽ tự đọc `SKILL.md` để biết quy trình: chạy `scripts/scan_static_checklist.py` trước (giây, tất định) → đọc checklist 1 lần → tóm tắt cấu trúc dự án → dispatch song song các nhóm A/C/D/E còn lại chưa được scanner trả lời → (nếu yêu cầu bao gồm "app có chạy đúng không") chạy testing 2 tầng theo `TESTING.md` (Playwright browser-preview + real-device có GIF bằng chứng) → tổng hợp báo cáo PASS/FAIL/WARN kèm bằng chứng `file:line`/GIF. Nhóm B/F (pháp lý) không tự kiểm bằng code — agent liệt kê thành checklist thủ công cho người phụ trách, không tự kết luận đạt/không đạt.
 
 **Đọc kỹ trước khi trình bày kết quả với khách hàng**: mục "Trạng thái" (đầu file này) và "Giới hạn quan trọng" (cuối file này) — đây là bản nháp, chưa qua review pháp lý cho Nhóm B.
 

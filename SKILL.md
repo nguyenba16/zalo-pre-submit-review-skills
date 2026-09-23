@@ -1,6 +1,6 @@
 ---
 name: zalo-pre-submit-review
-description: "Run a pre-submit QA review on a Zalo Mini App (zmp-sdk/zmp-ui + Vite, any project) BEFORE submitting to Zalo's review/censorship process — checks the project against the full official checklist (censorship policy, developer agreement, legal/regulated-industry licensing, technical pitfalls, UI/UX, permission declarations, submission flow) bundled as checklist.md/checklist.docx in this skill's directory, to catch rejection causes before the 3-7 day review cycle."
+description: "Run a pre-submit QA review on a Zalo Mini App (zmp-sdk/zmp-ui + Vite, any project) BEFORE submitting to Zalo's review/censorship process — checks the project against the full official checklist (censorship policy, developer agreement, legal/regulated-industry licensing, technical pitfalls, UI/UX, permission declarations, submission flow) bundled as checklist.md/checklist.docx, runs a deterministic static scanner (scripts/scan_static_checklist.py) for the mechanical subset of checks, and orchestrates the browser-preview + real-device testing tiers (TESTING.md) needed to confirm the items only a running app can verify — to catch rejection causes before the 3-7 day review cycle."
 ---
 
 ## Khi nào dùng skill này
@@ -11,6 +11,8 @@ Trước khi bấm "Gửi xét duyệt" (submit) một Zalo Mini App — bản m
 
 - `checklist.md` — checklist đầy đủ 217 mục, chia 6 nhóm (A–F), mỗi mục có nguồn (URL#anchor tài liệu chính thức Zalo), lý do/hậu quả, và nhãn `Automatable: yes/partial/no`. Bảng thống kê đầu file: 92 yes / 75 partial / 50 no.
 - `checklist.docx` — bản Word cùng nội dung, dùng để gửi cho người phụ trách nội dung/pháp lý không dùng Markdown.
+- `scripts/scan_static_checklist.py` — scanner tất định (không phải LLM judgment) cho tập con cơ học nhất của các mục `Automatable: yes` (tên/logo/URL/secret/size/config) trên một project thật, chạy trong <1s, output PASS/FAIL/WARN/SKIP + evidence `file:line`, exit code 1 nếu có FAIL (dùng được làm CI gate). Đọc `TESTING.md` để biết cách chạy và vị trí của nó trong quy trình tổng.
+- `TESTING.md` — playbook 2 tầng test (browser-preview tự động hoá bằng Playwright + real-device thủ công có ghi bằng chứng GIF) cho các mục checklist chỉ xác nhận được bằng cách CHẠY app (hiệu suất A8, login D4, xin quyền A5/E3, Checkout SDK A7, E2 "đã test qua Hot Reload trên Zalo thật") — không đọc source suông là đủ cho các mục này. Trỏ tới 3 managed skill chuyên biệt: `zalo-mini-app-browser-testing` (Playwright), `zalo-miniapp-real-device-gif-capture` + `mobile-device-test-record-gif` (quay màn hình thiết bị thật).
 
 6 nhóm trong checklist:
 - **Nhóm A** — Chính sách nội dung & kiểm duyệt (logo, tên, mô tả, điều hướng, xin quyền, quảng cáo, hiệu suất)
@@ -20,22 +22,23 @@ Trước khi bấm "Gửi xét duyệt" (submit) một Zalo Mini App — bản m
 - **Nhóm E** — Quy trình nộp duyệt & khai báo quyền (4 nhóm permission chính thức, Partner API tự động hoá: getAppPermissions/requestAppPermission/requestPublishMiniApp/publishMiniApp/webhook)
 - **Nhóm F** — Bổ sung (dung lượng app, xác thực Mini App, thay đổi thông tin sau khi tạo)
 
-## Cách chạy pre-submit review trên một dự án Mini App (bản tối ưu token — dùng từ 2026-09-03)
+## Cách chạy pre-submit review trên một dự án Mini App (bản tối ưu token — dùng từ 2026-09-03, cập nhật scanner + testing tier từ 2026-09-23)
 
 **KHÔNG** đọc toàn bộ `checklist.md` (405 dòng) rồi tự grep tuần tự từng mục — tốn token gấp nhiều lần vì đọc lặp lại cùng file source cho nhiều mục riêng lẻ, và giữ toàn bộ context checklist trong 1 phiên. Quy trình chuẩn:
 
+0. **Chạy scanner tất định trước tiên**: `python3 scripts/scan_static_checklist.py <project_root> --build-dir <thư mục build nếu có>` (xem `TESTING.md`). Đây là bước rẻ nhất (giây, không cần LLM) và loại ngay các FAIL/PASS cơ học (tên ALL CAPS, link trong mô tả, `http://` literal, secret hardcode, size limit...) trước khi dispatch subagent — bước 3 dưới đây chỉ cần xử lý phần còn lại của checklist, không quét lại các mục scanner đã trả lời.
 1. **Đọc `checklist.md` MỘT LẦN** (có thể theo range nếu file lớn — dùng selector `:N-M` thay vì đọc lại toàn bộ ở bước sau) để nắm nội dung 6 nhóm A–F + nhãn Automatable của từng mục.
 2. **Đọc nhanh cấu trúc dự án đích** (root listing + package.json + app-config.json + .env.example + 1-2 file kiến trúc như PROJECT.md/AGENTS.md) để biết stack, feature module, vị trí auth/permission service — dùng info này làm `context` chung cho các subagent, KHÔNG để mỗi subagent tự dò cấu trúc lại.
-3. **Chia các mục `Automatable: yes/partial` thành nhóm A/C/D/E theo checklist gốc, dispatch SONG SONG 4 `scout` subagent trong MỘT lệnh `task` (KHÔNG tuần tự)** — mỗi subagent nhận:
+3. **Chia các mục `Automatable: yes/partial` CÒN LẠI (sau khi trừ đi các mục scanner ở bước 0 đã trả lời) thành nhóm A/C/D/E theo checklist gốc, dispatch SONG SONG 4 `scout` subagent trong MỘT lệnh `task` (KHÔNG tuần tự)** — mỗi subagent nhận:
    - Bối cảnh dự án đã tóm tắt sẵn ở bước 2 (KHÔNG bắt subagent tự khám phá lại repo).
    - Danh sách mục checklist cụ thể của nhóm đó, kèm **grep pattern/API name/regex đã trích sẵn** từ cột "Automatable" trong checklist (copy nguyên văn gợi ý kiểm tra, không diễn giải lại mơ hồ).
    - Yêu cầu output PASS/FAIL/WARN/N/A + bằng chứng `file:line` cho từng mục, KHÔNG paste toàn bộ nội dung file đã đọc.
 4. **Nhóm B và F (chủ yếu `Automatable: no` — pháp lý/eKYC/giấy phép ngành nghề)**: KHÔNG dispatch subagent quét code (source không trả lời được các mục này). Tự đối chiếu trực tiếp từ checklist + 1-2 lần grep có mục tiêu (vd tìm trang "Quản lý quyền"/business info) nếu cần xác nhận nhanh; phần còn lại liệt kê thẳng làm checklist thủ công cho người phụ trách.
 5. Sau khi 4 subagent hoàn tất, **đọc `agent://<id>` cho từng job** (không phải preview rút gọn) rồi tự tổng hợp — KHÔNG yêu cầu subagent tự viết báo cáo Markdown dài; JSON có cấu trúc (summary/files/architecture) dễ tổng hợp và rẻ hơn prose.
-6. **Xuất báo cáo cuối** theo format: WARN/FAIL cần xử lý trước (kèm bằng chứng + hành động cụ thể) → mục cần xác nhận thủ công → danh sách quyền cần xin duyệt → PASS gộp ngắn gọn theo nhóm → phần B/F pháp lý tóm tắt (không liệt kê lại cả 50 mục no, trỏ về `checklist.md:<dòng>` để người đọc tự mở).
+6. **Nếu yêu cầu bao gồm "app có chạy đúng không" (không chỉ đọc code)**: chạy song song với bước 3 Tầng 1 Playwright (browser-preview) theo `TESTING.md`; sau đó chạy Tầng 2 real-device (thủ công, có ghi GIF bằng chứng) cho các mục chỉ xác nhận được khi CHẠY app thật (login D4, xin quyền A5/E3, Checkout SDK A7, hiệu suất A8) — KHÔNG suy luận PASS các mục này từ việc code "trông đúng" ở bước 0/3.
+7. **Xuất báo cáo cuối** theo format: WARN/FAIL cần xử lý trước (kèm bằng chứng + hành động cụ thể, gộp cả kết quả scanner bước 0) → mục cần xác nhận thủ công → bằng chứng real-device (GIF/video nếu đã chạy bước 6) → danh sách quyền cần xin duyệt → PASS gộp ngắn gọn theo nhóm → phần B/F pháp lý tóm tắt (không liệt kê lại cả 50 mục no, trỏ về `checklist.md:<dòng>` để người đọc tự mở).
 
-Hiệu quả đã đo: 1 lần chạy full 4 nhóm (~90 mục automatable) trên 1 Mini App cỡ trung (30+ file feature) tốn ~5 tool-call rounds (2 batch read song song + 1 dispatch 4-agent + 2 wait/collect) thay vì phải tự đọc từng file nguồn cho từng mục tuần tự.
-
+Hiệu quả đã đo: 1 lần chạy full 4 nhóm (~90 mục automatable) trên 1 Mini App cỡ trung (30+ file feature) tốn ~5 tool-call rounds (2 batch read song song + 1 dispatch 4-agent + 2 wait/collect) thay vì phải tự đọc từng file nguồn cho từng mục tuần tự — cộng thêm scanner ở bước 0 (1 lệnh, <1s) giảm tiếp số mục subagent phải tự suy luận.
 
 ## Giới hạn quan trọng — đọc trước khi trình bày/cam kết với khách hàng
 

@@ -15,9 +15,11 @@ REPO_URL="https://github.com/nguyenba16/zalo-pre-submit-review-skills.git"
 CLONE_DIR="${ZPSR_CLONE_DIR:-$HOME/.cache/zalo-pre-submit-review-skills}"
 TARGET_DIR="${ZPSR_TARGET_DIR:-$HOME/.omp/agent/managed-skills/zalo-pre-submit-review}"
 
-# Các file thực sự được agent dùng khi chạy skill (không đồng bộ README/AGENTS.md/
-# CLAUDE.md/agents/ — đó là artefact riêng của repo dev, không phải của managed skill).
-RUNTIME_FILES=(SKILL.md checklist.md checklist.docx sources.json check_updates.py requirements.txt CHANGELOG.md)
+# Các file/thư mục thực sự được agent dùng khi chạy skill (không đồng bộ README/
+# AGENTS.md/CLAUDE.md/agents/ — đó là artefact riêng của repo dev, không phải của
+# managed skill).
+RUNTIME_FILES=(SKILL.md checklist.md checklist.docx TESTING.md sources.json check_updates.py requirements.txt CHANGELOG.md)
+RUNTIME_DIRS=(scripts)
 
 if [ -d "$CLONE_DIR/.git" ]; then
   OLD_SHA="$(git -C "$CLONE_DIR" rev-parse HEAD)"
@@ -38,6 +40,9 @@ NEEDS_COPY=0
 for f in "${RUNTIME_FILES[@]}"; do
   [ -f "$TARGET_DIR/$f" ] || NEEDS_COPY=1
 done
+for d in "${RUNTIME_DIRS[@]}"; do
+  [ -d "$TARGET_DIR/$d" ] || NEEDS_COPY=1
+done
 
 if [ -n "$OLD_SHA" ] && [ "$OLD_SHA" = "$NEW_SHA" ] && [ "$NEEDS_COPY" -eq 0 ]; then
   echo "[sync] Already up to date (commit ${NEW_SHA:0:7}) - nothing to update."
@@ -51,6 +56,13 @@ for f in "${RUNTIME_FILES[@]}"; do
     exit 1
   fi
   echo "[sync]   copied $f"
+done
+for d in "${RUNTIME_DIRS[@]}"; do
+  if ! cp -rf "$CLONE_DIR/$d" "$TARGET_DIR/$d"; then
+    echo "[sync] ERROR: failed to copy $d/ to $TARGET_DIR (locked by another program? permissions?)" >&2
+    exit 1
+  fi
+  echo "[sync]   copied $d/"
 done
 echo "[sync] Updated $TARGET_DIR"
 if [ -n "$OLD_SHA" ]; then
