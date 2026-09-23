@@ -48,13 +48,30 @@ Quy trình công ty: BA thiết kế mockup trên **Figma**, viết luồng nghi
    - **Rule luồng nhiều bước** → dùng `browser` tool thực hiện đúng chuỗi thao tác mô tả, xác nhận kết quả cuối khớp.
 3. Dispatch song song theo section (giống pattern `zalo-pre-submit-review`): mỗi subagent nhận 1 section + rule cụ thể + bối cảnh project (đã tóm tắt sẵn, không để subagent tự dò cấu trúc), trả PASS/FAIL/WARN + bằng chứng `file:line` (code) — **không suy luận PASS nếu không tìm thấy code liên quan**, phải trả `N/A — không tìm thấy implementation, xác nhận với dev` thay vì đoán.
 
-## Báo cáo cuối
+## Báo cáo cuối — luôn trình bày dạng bảng, gộp Lane A + Lane B, không tách 2 báo cáo rời
 
-Gộp Lane A + Lane B cùng 1 format, theo route/section, không tách 2 báo cáo rời:
-- FAIL cần sửa trước (kèm bằng chứng: ảnh so sánh cho Lane A, `file:line` cho Lane B, cả 2 trỏ về đúng nguồn — node Figma / dòng trong `logic.md`).
-- WARN cần người xác nhận.
-- PASS gộp ngắn gọn.
-- Rule nào Lane B không tìm được implementation → liệt kê riêng cho dev xác nhận (khác với FAIL — có thể do subagent tìm sai chỗ, không phải chắc chắn thiếu).
+Mỗi route/section 1 dòng trong bảng, để user quét mắt nắm toàn bộ kết quả trong vài giây thay vì đọc văn xuôi dài. Format bắt buộc:
+
+```markdown
+### Tóm tắt: X PASS · Y WARN · Z FAIL · W N/A (chưa tìm thấy implementation)
+
+| Route/Rule | Lane | Trạng thái | Bằng chứng | Nguồn (Figma node / logic.md) |
+|---|---|---|---|---|
+| `/` (Trang chủ) | A — UI | PASS | Khớp mockup, không khác biệt đáng kể | node `12:34` |
+| `/` (Trang chủ) | B — Logic | WARN | Điều kiện ẩn banner dùng `>` nhưng mô tả dùng `>=` — cần BA xác nhận biên | `logic.md:18` |
+| `/product/:id` | A — UI | FAIL | Thiếu nút "Thêm giỏ hàng" so với mockup | node `12:56` |
+| `/product/:id` | B — Logic | FAIL | Giá giảm tính `price * 0.9` nhưng mô tả là giảm 15% | `logic.md:42`, `src/features/product/usePrice.ts:31` |
+| `/checkout` | B — Logic | N/A | Không tìm thấy implementation rule "giới hạn 5 sản phẩm/đơn" — xác nhận với dev có đúng route/file không | `logic.md:60` |
+```
+
+Quy tắc bắt buộc khi điền bảng:
+- **1 dòng = 1 route/rule cụ thể**, không gộp nhiều route vào 1 dòng "chung chung" — user phải trace được thẳng từ dòng bảng về đúng route/rule.
+- Cột **Lane** luôn ghi rõ `A — UI` hay `B — Logic`, không để trống — tránh user nhầm 1 route đã kiểm cả 2 lane hay mới 1.
+- Cột **Bằng chứng** là 1 câu ngắn, cụ thể (không viết "sai" chung chung) — Lane A mô tả khác biệt UI cụ thể, Lane B trích công thức/điều kiện sai + đúng.
+- Cột **Nguồn** luôn trỏ về được: node id Figma (Lane A) hoặc `file:line` trong `logic.md` + code liên quan (Lane B) — không bỏ trống.
+- **N/A khác với FAIL** — N/A nghĩa là subagent không tìm được implementation (có thể do tìm sai chỗ), không phải chắc chắn thiếu tính năng. Liệt kê riêng thành 1 dòng, không tự suy luận thành FAIL.
+- Dòng FAIL đặt lên đầu bảng (sort theo mức nghiêm trọng: FAIL → WARN → N/A → PASS) để user thấy việc cần sửa trước tiên ngay khi lướt mắt, không phải kéo hết bảng mới thấy.
+- Dòng **Tóm tắt** ở đầu (đếm số lượng mỗi loại) — user không cần đếm tay qua cả bảng để biết tổng quan.
 
 ## Cơ chế phản hồi & cập nhật (feedback/update mechanism)
 
