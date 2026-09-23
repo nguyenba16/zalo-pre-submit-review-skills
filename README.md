@@ -9,6 +9,17 @@ Bộ skill (Claude Code/omp managed skill format) để clone 1 lần, đồng b
 | **zalo-pre-submit-review** | [`zalo-pre-submit-review/`](./zalo-pre-submit-review/) | Trước khi nộp xét duyệt 1 Zalo Mini App — pre-flight QA đối chiếu 217 mục chính sách kiểm duyệt/pháp lý/kỹ thuật Zalo, kèm scanner tự động + playbook test browser-preview & real-device. |
 | **figma-logic-conformance-test** | [`figma-logic-conformance-test/`](./figma-logic-conformance-test/) | Khi BA giao Figma mockup + file `.md` logic nghiệp vụ cho dev — đối chiếu UI đã build với Figma (Lane A) và logic đã code với `.md` (Lane B). |
 
+## Nội dung repo (thư mục gốc)
+
+| File/thư mục | Mô tả |
+|---|---|
+| [`sync.sh`](./sync.sh) | Cài skill global (Cách A) — tự clone + copy vào `~/.omp/agent/managed-skills/`, tự phát hiện mọi thư mục con có `SKILL.md`. |
+| [`install-local.sh`](./install-local.sh) | Vendor skill vào 1 project cụ thể (Cách B) — copy vào `<project>/.omp/skills/`, tự stamp `.vendor-meta.json` (commit gốc). |
+| [`check-local-updates.sh`](./check-local-updates.sh) | Kiểm tra skill đã vendor (Cách B) có lỗi thời so với repo gốc không — đọc `.vendor-meta.json`, so với GitHub. |
+| [`.github/ISSUE_TEMPLATE/skill-bug-report.yml`](./.github/ISSUE_TEMPLATE/skill-bug-report.yml) | Form chuẩn hoá báo lỗi 1 skill (dùng khi bấm "New issue" trên GitHub). |
+| [`PRESENTATION.md`](./PRESENTATION.md) / `PRESENTATION.docx` | Tài liệu tổng hợp để trình bày/chia sẻ nội bộ công ty (vấn đề, giải pháp, kiến trúc, giới hạn). |
+| `zalo-pre-submit-review/`, `figma-logic-conformance-test/` | 2 skill — xem bảng ở trên. |
+
 ## Trạng thái
 
 ⚠️ **Cả 2 skill đều là bản nháp** — chưa qua review thủ công/pháp lý, chưa chạy trên project thật của công ty. Xem mục "Giới hạn quan trọng" trong `SKILL.md` của từng skill trước khi dùng cho khách hàng/dự án thật. Đóng góp/report lỗi qua [Issues](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues).
@@ -19,6 +30,7 @@ Bộ skill (Claude Code/omp managed skill format) để clone 1 lần, đồng b
 - Git + Bash để chạy `sync.sh`. Trên **Windows dùng Git Bash** (đi kèm Git for Windows) — không chạy `sync.sh` bằng CMD/PowerShell thuần.
 - Python 3 + `pip install -r requirements.txt` bên trong từng thư mục skill (mỗi skill có `requirements.txt` riêng, dependency khác nhau).
 - Một AI agent hỗ trợ managed skills (Claude Code / omp / ckit) — các skill này không phải app chạy độc lập, đó là tài liệu + script để agent đọc và tự thực hiện review/test.
+- `gh` CLI (GitHub CLI, `brew install gh` / `winget install GitHub.cli`) + `gh auth login` — cần cho tính năng agent tự mở/tìm GitHub Issue khi phát hiện lỗi lúc chạy skill (xem Bước 4). Không có `gh` vẫn dùng được skill bình thường, chỉ mất tính năng tự-report.
 
 ### Bước 1 — Cài lần đầu (2 cách, chọn 1 theo nhu cầu)
 
@@ -64,6 +76,23 @@ Exit code `3` nếu có skill lỗi thời (dùng được làm CI job định k
 Mở [Issue](https://github.com/nguyenba16/zalo-pre-submit-review-skills/issues/new/choose) mới bằng template **"Báo lỗi / đề xuất sửa 1 skill"** (`.github/ISSUE_TEMPLATE/skill-bug-report.yml`) — form đã có sẵn field bắt buộc (skill nào, ID mục/rule sai, bằng chứng) + field tuỳ chọn (đề xuất sửa, commit đang vendor nếu cài theo Cách B). Không cần tự nhớ format tay.
 
 **Không chỉ user mới report được** — cả 2 SKILL.md đều có mục "Agent tự phát hiện sai trong lúc chạy thật": nếu agent phát hiện checklist/scanner báo sai ngay trong lúc đang chạy review cho 1 project thật, agent tự hỏi user có muốn mở Issue luôn không (qua `gh issue create`, tự điền sẵn bằng chứng), thay vì để user tự nhớ làm sau. Chi tiết quy trình đầy đủ cho từng skill nằm trong `SKILL.md` tương ứng (mục "Cơ chế phản hồi & cập nhật").
+
+### Xử lý sự cố thường gặp (đúc kết từ lỗi thật đã gặp khi test)
+
+**`git add .omp/skills` không thấy gì xảy ra / commit rỗng (Cách B)** — nhiều project có `.gitignore` chặn cả thư mục `.omp/` (kể cả khi comment trong chính file đó ghi "giữ `.omp/skills/`" — 2 thứ này có thể mâu thuẫn nhau, đã gặp thật). Kiểm tra trước:
+```bash
+git check-ignore -v .omp/skills/<tên-skill>/SKILL.md
+```
+Có output nghĩa là đang bị ignore. Sửa `.gitignore` của project đích, đổi dòng `.omp/` thành:
+```
+.omp/*
+!.omp/skills/
+```
+(giữ nguyên ignore cho các thư mục `.omp/` khác như `config.yml`, `commands/`). Muốn add ngay không sửa `.gitignore`: `git add -f .omp/skills`.
+
+**`timeout: command not found` khi chạy `check-local-updates.sh` trên macOS** — `timeout` là lệnh GNU coreutils, macOS mặc định không có (`/usr/bin/env bash` vẫn resolve về bash 3.2 cổ). Script đã tự fallback (dùng `gtimeout` nếu có, hoặc chạy không giới hạn thời gian nếu không có cả 2) — nếu vẫn thấy lỗi này, đang chạy bản `check-local-updates.sh` cũ, `git pull`/vendor lại bản mới nhất.
+
+**`gh issue create` báo lỗi label không tồn tại** — chỉ xảy ra nếu ai đó tạo skill mới mà chưa tạo label tương ứng trên GitHub repo. Tạo bằng `gh label create <tên-skill> --repo nguyenba16/zalo-pre-submit-review-skills`.
 
 ## Giới hạn quan trọng
 
