@@ -9,7 +9,7 @@ Trước khi bấm "Gửi xét duyệt" (submit) một Zalo Mini App — bản m
 
 ## Tài nguyên đi kèm
 
-- `checklist.md` — checklist đầy đủ 217 mục, chia 6 nhóm (A–F), mỗi mục có nguồn (URL#anchor tài liệu chính thức Zalo), lý do/hậu quả, và nhãn `Automatable: yes/partial/no`. Bảng thống kê đầu file: 92 yes / 75 partial / 50 no.
+- `checklist.md` — checklist đầy đủ 218 mục, chia 6 nhóm (A–F), mỗi mục có nguồn (URL#anchor tài liệu chính thức Zalo), lý do/hậu quả, và nhãn `Automatable: yes/partial/no`. Bảng thống kê đầu file: 92 yes / 76 partial / 50 no.
 - `checklist.docx` — bản Word cùng nội dung, dùng để gửi cho người phụ trách nội dung/pháp lý không dùng Markdown.
 - `scripts/scan_static_checklist.py` — scanner tất định (không phải LLM judgment) cho tập con cơ học nhất của các mục `Automatable: yes` (tên/logo/URL/secret/size/config) trên một project thật, chạy trong <1s, output PASS/FAIL/WARN/SKIP + evidence `file:line`, exit code 1 nếu có FAIL (dùng được làm CI gate). Đọc `TESTING.md` để biết cách chạy và vị trí của nó trong quy trình tổng.
 - `TESTING.md` — playbook 2 tầng test (browser-preview tự động hoá bằng Playwright + real-device thủ công có ghi bằng chứng GIF) cho các mục checklist chỉ xác nhận được bằng cách CHẠY app (hiệu suất A8, login D4, xin quyền A5/E3, Checkout SDK A7, E2 "đã test qua Hot Reload trên Zalo thật") — không đọc source suông là đủ cho các mục này. Trỏ tới 3 managed skill chuyên biệt: `zalo-mini-app-browser-testing` (Playwright), `zalo-miniapp-real-device-gif-capture` + `mobile-device-test-record-gif` (quay màn hình thiết bị thật).
@@ -44,7 +44,7 @@ Hiệu quả đã đo: 1 lần chạy full 4 nhóm (~90 mục automatable) trên
 
 - Đây là **pre-flight QA trước khi nộp**, KHÔNG thay thế đội kiểm duyệt của Zalo — Zalo vẫn có quyết định cuối cùng, đặc biệt với các mục chủ quan (nội dung, tên/logo phù hợp thương hiệu, giấy phép ngành nghề thật).
 - Checklist bám sát tài liệu tại thời điểm 2026-09-03 — Zalo có thể cập nhật chính sách; nếu phát hiện nội dung checklist lệch với tài liệu chính thức khi dùng, cập nhật lại `checklist.md`/`checklist.docx` trong skill này và ghi rõ ngày cập nhật mới ở đầu file.
-- 217 mục, ~42% `yes` (agent tự quyết được), ~35% `partial` (agent chỉ cảnh báo), ~23% `no` (thuần thủ công/pháp lý) — xem bảng thống kê đầu `checklist.md` để ước lượng effort trước khi cam kết thời gian review với khách hàng.
+- 218 mục, ~42% `yes` (agent tự quyết được), ~35% `partial` (agent chỉ cảnh báo), ~23% `no` (thuần thủ công/pháp lý) — xem bảng thống kê đầu `checklist.md` để ước lượng effort trước khi cam kết thời gian review với khách hàng.
 
 ## Cơ chế phản hồi & cập nhật (feedback/update mechanism)
 

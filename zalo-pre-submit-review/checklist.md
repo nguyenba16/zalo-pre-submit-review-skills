@@ -8,19 +8,19 @@
 > - **Automatable: partial** — agent kiểm tra được MỘT PHẦN (phát hiện dấu hiệu/nghi vấn), phần còn lại (nội dung, ngữ nghĩa, pháp lý) cần người review.
 > - **Automatable: no** — hoàn toàn thủ công/pháp lý/hành chính, agent chỉ nhắc nhở trong checklist, không tự kiểm tra được.
 >
-> Cập nhật lần cuối: 2026-09-03. Nguồn tài liệu đầy đủ liệt kê ở Phụ lục cuối file.
+> Cập nhật lần cuối: 2026-10-02 (thêm 1 mục A4 — yêu cầu popup cảnh báo nội dung AI, phát hiện qua phản hồi từ chối thực tế của Zalo, chưa có trong tài liệu công khai). Baseline gốc 217 mục: 2026-09-03. Nguồn tài liệu đầy đủ liệt kê ở Phụ lục cuối file.
 
 ## Thống kê mức độ tự động hoá theo Nhóm
 
 | Nhóm | Tổng số mục | Automatable: yes | partial | no |
 |---|---|---|---|---|
-| Nhóm A — Chính sách nội dung & kiểm duyệt (Censorship Policy) | 53 | 21 | 20 | 12 |
+| Nhóm A — Chính sách nội dung & kiểm duyệt (Censorship Policy) | 54 | 21 | 21 | 12 |
 | Nhóm B — Pháp lý, hợp đồng nhà phát triển & tuân thủ dữ liệu cá nhân | 58 | 23 | 10 | 25 |
 | Nhóm C — Lỗi kỹ thuật (dev/build/runtime) | 24 | 15 | 7 | 2 |
 | Nhóm D — UI/UX, điều hướng & xác thực người dùng | 23 | 6 | 17 | 0 |
 | Nhóm E — Quy trình nộp duyệt & khai báo quyền (Submission & Permissions) | 55 | 26 | 19 | 10 |
 | Nhóm F — Cộng đồng, thông báo & điều khoản bổ sung | 4 | 1 | 2 | 1 |
-| **Tổng** | **217** | **92** | **75** | **50** |
+| **Tổng** | **218** | **92** | **76** | **50** |
 
 `yes` = agent kiểm tra tự động hoàn toàn (static/dynamic scan có kết quả nhị phân). `partial` = agent phát hiện dấu hiệu/nghi vấn, người review quyết định cuối. `no` = thuần thủ công/pháp lý/hành chính, agent chỉ nhắc trong checklist.
 
@@ -73,6 +73,7 @@ Gợi ý vận hành: chạy phần `yes`/`partial` như một gate CI tự đ�
 - [ ] Không được điều hướng ra liên kết ngoài Mini App, TRỪ hiển thị Chính sách bảo mật/Điều khoản sử dụng — Nguồn: #41. Automatable: partial — scan `window.open`, `<a target=_blank>` trỏ domain ngoài, đối chiếu whitelist.
 - [ ] Nếu hiển thị Chính sách bảo mật/Điều khoản, phải nhúng trực tiếp trong Mini App dưới dạng popup nội bộ, không mở trình duyệt ngoài — Nguồn: #41. Automatable: yes — browser test click link, xác nhận nội dung hiện trong popup/webview nội bộ.
 - [ ] Nội dung không được sai lệch, lừa đảo, giả mạo hoặc bị cấm theo pháp luật — Nguồn: #42-nội-dung-đúng-pháp-luật. Automatable: no.
+- [ ] Mini App có tính năng Chatbot AI/ứng dụng công nghệ AI phải hiển thị popup hoặc thông tin cảnh báo về khả năng sai sót của nội dung do AI cung cấp, đảm bảo người dùng được thông tin đầy đủ trước khi dùng tính năng đó — Nguồn: phản hồi từ chối thực tế của Zalo (email kiểm duyệt, ghi nhận 2026-10-02); **CHƯA có trong tài liệu chính sách kiểm duyệt công khai** tại https://miniapp.zaloplatforms.com/documents/zalo-mini-app-censorship-policy/ (đã đọc lại toàn bộ 9 mục của trang, không thấy mục này tại thời điểm cập nhật) — Zalo áp dụng qua kiểm duyệt thủ công sớm hơn khi publish văn bản chính thức, tương tự tinh thần #42-nội-dung-đúng-pháp-luật (nội dung không sai lệch). Automatable: partial — static scan tìm Mini App có route/feature chứa "chat"/"ai"/"assistant" hoặc gọi LLM API, cảnh báo thiếu nếu không tìm thấy component popup/disclaimer hiển thị trước hoặc trong màn chat; nội dung cảnh báo có đạt yêu cầu "đầy đủ" hay không cần review thủ công.
 - [ ] Không được tự ý treo banner quảng cáo bên thứ ba kiếm tiền — Nguồn: #43-nội-dung-mang-tính-quảng-cáo-kiếm-tiền. Automatable: partial — scan iframe/script quảng cáo (AdSense, banner SDK).
 - [ ] Không được chứa/tạo điều kiện mua bán vật phẩm ảo, đơn vị ảo của trò chơi điện tử — Nguồn: #44-vật-phẩm-ảo. Automatable: no.
 - [ ] Không được liên quan giao dịch tiền điện tử/NFT chưa được cấp phép — Nguồn: #44. Automatable: no — có thể scan keyword "crypto"/"NFT"/"token" làm cảnh báo sơ bộ.
