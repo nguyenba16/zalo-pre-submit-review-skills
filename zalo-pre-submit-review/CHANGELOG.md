@@ -2,6 +2,11 @@
 
 Ghi lại mọi thay đổi nội dung checklist (không ghi log hash-only từ check_updates.py --update trừ khi kèm sửa nội dung thật).
 
+## [1.3.0] — 2026-10-02
+- Thêm 1 mục mới vào Nhóm A4 (Nội dung Mini App): Mini App có tính năng Chatbot AI/ứng dụng AI phải hiển thị popup/thông tin cảnh báo khả năng sai sót nội dung AI. Phát hiện qua phản hồi **từ chối thực tế** của Zalo trên 1 Mini App khách hàng (không phải qua `check_updates.py` hay báo lỗi script) — verify trực tiếp: đọc lại toàn bộ 9 mục trang https://miniapp.zaloplatforms.com/documents/zalo-mini-app-censorship-policy/, xác nhận mục này **CHƯA được publish chính thức** tại thời điểm cập nhật. Zalo đang áp dụng yêu cầu này qua kiểm duyệt thủ công sớm hơn văn bản. Cập nhật thống kê: 217→218 mục, Nhóm A 53→54 (partial 20→21), Tổng partial 75→76.
+- Regenerate `checklist.docx` theo đúng script parse mô tả trong SKILL.md.
+- **Lưu ý cho bản thân skill**: cơ chế `check_updates.py` (hash-diff trang đã publish) không bắt được loại thay đổi này — yêu cầu mới có thể đến qua phản hồi từ chối trước khi lên tài liệu công khai. Không có giải pháp tự động cho trường hợp này; chỉ ghi nhận thủ công khi phát sinh.
+
 ## [1.2.0] — 2026-09-23
 - Repo restructure: chuyển từ layout 1-skill-per-repo sang **monorepo nhiều skill** (`skill-claude`) — mọi file của skill này (SKILL.md, checklist.md/.docx, TESTING.md, scripts/, sources.json, check_updates.py, requirements.txt, file CHANGELOG này) chuyển vào thư mục con `zalo-pre-submit-review/` (dùng `git mv`, giữ lịch sử). Thêm skill thứ 2 `figma-logic-conformance-test/` cùng repo.
 - `sync.sh` viết lại thành generic: tự phát hiện MỌI thư mục con có `SKILL.md` và đồng bộ tất cả vào `~/.omp/agent/managed-skills/<tên-skill>/` — không còn danh sách file cứng riêng cho skill này. Đã test end-to-end (fresh install + idempotency) bằng git remote/target tạm, không đụng GitHub thật/máy thật.
